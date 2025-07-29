@@ -5,13 +5,14 @@ from init_center import kmeans_init
 
 
 def kmeans_silhouette(features):
-    # calculate sqrt(n)
-    sqrt_n = int(np.sqrt(len(features)))
+    sqrt_n: int = int(np.sqrt(len(features)))
     # Initialise k and clustering results
-    k = sqrt_n
-    best_k = k
+    k: int = sqrt_n
+    best_k: int = k
     best_clusters = None
-    best_avg_silhouette = -1
+    best_centers: list | None = None
+    best_avg_silhouette: float = -1
+    center_indices: list[int] | None = None
 
     # Results of the selection of the initial center
     clusters, centers = kmeans_init(features)
@@ -23,14 +24,16 @@ def kmeans_silhouette(features):
         distances = cdist(cluster_centers, cluster_centers, metric='euclidean')
 
         # Find the indexes of the two the nearest clusters
-        min_distance = np.inf
-        merge_cluster_indices = None
+        min_distance: float = np.inf
+        merge_cluster_indices: tuple[int, int] | None = None
         # Iterate over the values in the upper right corner of the matrix
         for i in range(k):
             for j in range(i + 1, k):
                 if distances[i, j] < min_distance:
                     min_distance = distances[i, j]
                     merge_cluster_indices = (i, j)
+
+        assert merge_cluster_indices is not None
 
         # Merge the two the nearest clusters and change the high cluster number to the low cluster number
         merged_cluster = np.where(clusters == merge_cluster_indices[1], merge_cluster_indices[0], clusters)
@@ -39,7 +42,7 @@ def kmeans_silhouette(features):
         clusters = np.where(merged_cluster > merge_cluster_indices[1], merged_cluster - 1, merged_cluster)
 
         # Update the cluster center, selecting the actual data point as the new cluster center
-        new_centers = []
+        new_centers = list()
         for cluster_id in range(k - 1):
             # Get samples of the current cluster
             cluster_samples = features[clusters == cluster_id]
@@ -54,13 +57,9 @@ def kmeans_silhouette(features):
         centers = new_centers
         # update number of cluster
         k -= 1
-        # print(len(centers))
         # Calculate Silhouette Coefficient
-        avg_silhouette = silhouette_score(features, clusters)
+        avg_silhouette = float(silhouette_score(features, clusters))
 
-
-        # center_indices = []
-        # 更新最佳结果
         if avg_silhouette > best_avg_silhouette:
             best_avg_silhouette = avg_silhouette
             best_k = k
@@ -68,15 +67,11 @@ def kmeans_silhouette(features):
             best_centers = centers.copy()
             center_indices = []
             for cluster_center in best_centers:
-                center_index = np.where((features == cluster_center).all(axis=1))[0][0]
+                center_index: int = np.where((features == cluster_center).all(axis=1))[0][0]
                 center_indices.append(center_index)
 
-    # return result
-    # print("best_k:" + str(best_k))
-    # print("best_clusters:" + str(best_clusters))
-    # print("best_centers:" + str(best_centers) + str(len(best_centers)))
-    # print("best_avg_sc:" + str(best_avg_silhouette))
-    # print("best_center_index:" + str(center_indices))
+    assert best_clusters is not None
+    assert best_centers is not None
+    assert center_indices is not None
 
     return best_clusters, best_centers, best_k, center_indices
-

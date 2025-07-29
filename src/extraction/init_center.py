@@ -2,7 +2,6 @@ import numpy as np
 
 
 def kmeans_init(data):
-    print("In the process of initialising the center")
     n = len(data)
     # calculate sqrt(n)
     sqrt_n = int(np.sqrt(n))
@@ -13,6 +12,7 @@ def kmeans_init(data):
     while len(centers) < sqrt_n:
 
         sse_min = float('inf')
+        join_center = None
         for i in range(n):
             center = centers.copy()
             if np.any(data[i] != centers):
@@ -46,6 +46,7 @@ def kmeans_init(data):
                     join_center = data[i]
                     label = cluster_labels.copy()
 
+        assert join_center is not None
         centers.append(join_center)
 
     return np.array(label), np.array(centers)

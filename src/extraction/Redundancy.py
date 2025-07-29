@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def redundancy(video_path, keyframe_index, threshold):
+def redundancy(video_path: str, keyframe_indices: list[int], threshold: float) -> list[int]:
     # colour histogram
     def color_histogram(img):
         hist = cv2.calcHist([img], [0, 1, 2], None, [8, 8, 8], [0, 255, 0, 255, 0, 255])
@@ -11,9 +11,7 @@ def redundancy(video_path, keyframe_index, threshold):
     init_number = 0
     final_index = []
 
-    # print(keyframe_index)
-
-    final_index.append(keyframe_index[init_number])
+    final_index.append(keyframe_indices[init_number])
 
     # List for storing colour histograms
     histograms = []
@@ -21,7 +19,7 @@ def redundancy(video_path, keyframe_index, threshold):
     video = cv2.VideoCapture(video_path)
 
     # Iterate through the list of frame numbers
-    for frame_index in keyframe_index:
+    for frame_index in keyframe_indices:
         # Setting the current frame position
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
 
@@ -37,16 +35,14 @@ def redundancy(video_path, keyframe_index, threshold):
     video.release()
     histogram = np.array(histograms)
     new_histogram = []
-    mid_index = []
+    mid_index: list[int] = list()
 
     # Filter pure colour frames, low information frames
     for i in range(len(histogram)):
         peak_count = np.sum(histogram[i] > 0)
-        # print(i, peak_count)
         if peak_count > 10:
             new_histogram.append(histogram[i])
-            mid_index.append(keyframe_index[i])
-    # print(mid_index)
+            mid_index.append(keyframe_indices[i])
 
     # Get the global similarity matrix
     simis = []
@@ -60,8 +56,7 @@ def redundancy(video_path, keyframe_index, threshold):
             similarity = np.dot(base, lat) / (np.linalg.norm(base) * np.linalg.norm(lat))
             simi.append(similarity)
         simis.append(simi)
-    del_index = []
-    # print(simis)
+    del_index: list[int] = list()
     for i in range(len(mid_index)):
         for j in range(i + 1, len(mid_index)):
             if mid_index[i] in del_index or mid_index[j] in del_index:
@@ -69,12 +64,11 @@ def redundancy(video_path, keyframe_index, threshold):
             if simis[i][j] > threshold:
                 print(mid_index[j], simis[i][j], mid_index[i])
                 del_index.append(mid_index[j])
-    set_mid_index = set(mid_index)
-    set_del_index = set(del_index)
-    set_final_index = set_mid_index - set_del_index
-    final_index = list(set_final_index)
+    set_mid_index: set[int] = set(mid_index)
+    set_del_index: set[int] = set(del_index)
+    set_final_index: set[int] = set_mid_index - set_del_index
+    final_index: list[int] = list(set_final_index)
     final_index.sort()
-    print(final_index)
 
     return final_index
 
