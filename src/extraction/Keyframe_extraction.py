@@ -1,16 +1,17 @@
 import numpy as np
 from collections.abc import Iterable
+from tqdm import tqdm
 
-from Kmeans_improvment import kmeans_silhouette
-from Redundancy import redundancy
+from .Kmeans_improvment import kmeans_silhouette
+from .Redundancy import redundancy
 
 
 def shot_keyframe_extraction(shot_start_frame_indices: list[int], features: Iterable, video_path: str) -> list[int]:
-    features_np = np.asarray(features)
+    features_np = np.asarray(list(features))
 
     # Clustering at each shot to obtain keyframe sequence numbers
     keyframe_indices: list[int] = list()
-    for i in range(len(shot_start_frame_indices)-1):
+    for i in tqdm(range(len(shot_start_frame_indices)-1), desc="Iterating Over Shots for Keyframe Extraction"):
         start: int = shot_start_frame_indices[i]
         end: int = shot_start_frame_indices[i+1] - 1
         sub_features = features_np[start:end]

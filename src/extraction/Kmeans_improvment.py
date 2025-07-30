@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist
-from init_center import kmeans_init
+from .init_center import kmeans_init
 
 
 def kmeans_silhouette(features):

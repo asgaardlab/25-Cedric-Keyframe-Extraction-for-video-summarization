@@ -15,10 +15,9 @@ def kmeans_init(data):
         join_center = None
         for i in range(n):
             center = centers.copy()
-            if np.any(data[i] != centers):
+            if len(centers) == 0 or np.any(data[i] != centers):
                 center.append(data[i])
                 center = np.array(center)
-                # print(center)
                 sse = 0.0
 
                 # Cluster operation
