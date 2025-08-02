@@ -6,7 +6,7 @@ import numpy as np
 
 class CLIP:
     def __init__(self):
-        self.__device = "cuda:1" if torch.cuda.is_available() else "cpu"
+        self.__device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.__model_ID = "openai/clip-vit-large-patch14"
         self.__model: CLIPModel = CLIPModel.from_pretrained(self.__model_ID).to(self.__device) # type: ignore
         processor = CLIPProcessor.from_pretrained(self.__model_ID, use_fast=True)
