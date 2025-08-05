@@ -11,6 +11,7 @@ def kmeans_init(features_data):
     centers = []
     label = torch.zeros(n, dtype=torch.int64, device='cuda')
 
+    a_unit = tqdm(enumerate(range(sqrt_n)), total=sqrt_n, leave=False)
     while len(centers) < sqrt_n:
         sse_min = float('inf')
         b_unit = tqdm(enumerate(range(n)), total=n, leave=False)
@@ -43,11 +44,15 @@ def kmeans_init(features_data):
             if i % 10000 == 0:
                 b_unit.update(1)
 
-        assert join_center is not None
-        centers.append(join_center)
-        b_unit.n = n
+        #assert join_center is not None
+        if join_center is not None:
+            centers.append(join_center)
+            a_unit.update(1)
         b_unit.refresh()
         b_unit.close()
+        a_unit.refresh()
+
+    a_unit.close()
 
     centers_cpu = [tensor.cpu() for tensor in centers]
     centers_np = [tensor.numpy() for tensor in centers_cpu]
